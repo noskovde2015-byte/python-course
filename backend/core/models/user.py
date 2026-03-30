@@ -1,6 +1,8 @@
+import datetime
+
 from core.models.base import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String
+from sqlalchemy import String, Boolean, DateTime, func
 from enum import Enum
 
 
@@ -16,3 +18,8 @@ class User(Base):
     password: Mapped[str] = mapped_column(String, nullable=True)
     nickname: Mapped[str] = mapped_column(String, nullable=False, unique=True)
     role: Mapped[UserRole] = mapped_column(default=UserRole.USER)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+    )
