@@ -20,7 +20,6 @@ class DataBaseConfig(BaseModel):
     max_overflow: int = 10
 
 
-
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=Path(__file__).parent.parent / ".env",
@@ -34,7 +33,4 @@ class Settings(BaseSettings):
     db: DataBaseConfig
 
 
-
-
 settings = Settings()
-
