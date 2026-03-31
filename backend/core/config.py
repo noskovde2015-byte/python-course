@@ -9,7 +9,7 @@ class RunConfig(BaseModel):
 
 
 class ApiPrefix(BaseModel):
-    pass
+    api_prefix: str = "/api"
 
 
 class DataBaseConfig(BaseModel):
@@ -18,6 +18,13 @@ class DataBaseConfig(BaseModel):
     echo_pool: bool = False
     pool_size: int = 50
     max_overflow: int = 10
+
+
+class AuthConfig(BaseModel):
+    SECRET_KEY: str
+    ALGORITHM: str
+    ACCESS_TOKEN_EXPIRE: int
+    REFRESH_TOKEN_EXPIRE: int
 
 
 class Settings(BaseSettings):
@@ -31,6 +38,7 @@ class Settings(BaseSettings):
     run: RunConfig = RunConfig()
     prefix: ApiPrefix = ApiPrefix()
     db: DataBaseConfig
+    auth: AuthConfig
 
 
 settings = Settings()
