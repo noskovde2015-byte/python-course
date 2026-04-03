@@ -18,3 +18,8 @@ async def get_courses(session: AsyncSession):
 
 async def get_course_by_id(session: AsyncSession, course_id: int):
     return await session.get(Course, course_id)
+
+
+async def delete_course(session: AsyncSession, course: Course):
+    await session.delete(course)
+    await session.commit()
