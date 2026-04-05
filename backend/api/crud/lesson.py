@@ -1,25 +1,30 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.models import Lesson
+from core.shemas.lesson_shema import LessonCreate
+from core.models import Module
 
 
 async def create_lesson(
-    session: AsyncSession,
-    title: str,
-    content: str,
-    module_id: int,
-    order: int = 0,
+    session: AsyncSession, lesson_data: LessonCreate, module_id: int
 ):
+    module = await session.get(Module, module_id)
+    if not module:
+        raise ValueError("Модуль не найден")
+
     lesson = Lesson(
-        title=title,
-        content=content,
+        **lesson_data.model_dump(),
         module_id=module_id,
-        order=order,
     )
-    session.add(lesson)
-    await session.commit()
-    await session.refresh(lesson)
-    return lesson
+
+    try:
+        session.add(lesson)
+        await session.commit()
+        await session.refresh(lesson)
+        return lesson
+    except:
+        await session.rollback()
+        raise
 
 
 async def get_lessons_by_module(session: AsyncSession, module_id: int):

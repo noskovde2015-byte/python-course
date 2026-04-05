@@ -1,12 +1,13 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.models import Module
+from core.shemas.module_shema import ModuleCreate
 
 
 async def create_module(
-    session: AsyncSession, title: str, course_id: int, order: int = 0
+    session: AsyncSession, module_data: ModuleCreate, course_id: int
 ):
-    module = Module(title=title, course_id=course_id, order=order)
+    module = Module(**module_data.model_dump(), course_id=course_id)
     session.add(module)
     await session.commit()
     await session.refresh(module)
