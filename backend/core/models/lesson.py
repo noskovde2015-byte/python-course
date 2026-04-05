@@ -13,13 +13,13 @@ class Lesson(Base):
 
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
-
     order: Mapped[int] = mapped_column(Integer, default=0)
 
-    module_id: Mapped[int] = mapped_column(ForeignKey("modules.id"))
+    module_id: Mapped[int] = mapped_column(ForeignKey("modules.id", ondelete="CASCADE"))
 
     module: Mapped["Module"] = relationship(back_populates="lessons")
 
     tasks: Mapped[list["Task"]] = relationship(
-        back_populates="lesson", cascade="all, delete-orphan"
+        back_populates="lesson",
+        cascade="all, delete-orphan",
     )

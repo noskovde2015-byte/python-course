@@ -9,11 +9,12 @@ if TYPE_CHECKING:
 
 class Course(Base):
     __tablename__ = "courses"
+
     title: Mapped[str] = mapped_column(String(255), nullable=False)
-    description: Mapped[str | None] = mapped_column(String, nullable=False)
+    description: Mapped[str] = mapped_column(String, nullable=False)
 
     modules: Mapped[list["Module"]] = relationship(
         back_populates="course",
         cascade="all, delete-orphan",
-        order_by=lambda: Module.order,
+        order_by="Module.order",  # ✅ ВАЖНО
     )

@@ -12,7 +12,6 @@ class Module(Base):
     __tablename__ = "modules"
 
     title: Mapped[str] = mapped_column(String(255), nullable=False)
-
     order: Mapped[int] = mapped_column(Integer, default=0)
 
     course_id: Mapped[int] = mapped_column(ForeignKey("courses.id", ondelete="CASCADE"))
@@ -20,5 +19,7 @@ class Module(Base):
     course: Mapped["Course"] = relationship(back_populates="modules")
 
     lessons: Mapped[list["Lesson"]] = relationship(
-        back_populates="module", cascade="all, delete-orphan", order_by="Lesson.order"
+        back_populates="module",
+        cascade="all, delete-orphan",
+        order_by="Lesson.order",
     )
