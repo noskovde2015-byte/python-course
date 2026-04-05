@@ -12,6 +12,10 @@ class ApiPrefix(BaseModel):
     api_prefix: str = "/api"
     register_prefix: str = "/register"
     login_prefix: str = "/login"
+    course_prefix: str = "/course"
+    task_prefix: str = "/task"
+    lesson_prefix: str = "/lesson"
+    module_prefix: str = "/module"
 
 
 class DataBaseConfig(BaseModel):
