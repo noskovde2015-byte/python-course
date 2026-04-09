@@ -7,6 +7,7 @@ __all__ = (
     "Lesson",
     "Module",
     "Task",
+    "StarTransaction",
 )
 from .base import Base
 from .db_helper import db_helper
@@ -16,3 +17,4 @@ from .module import Module
 from .course import Course
 from .lesson import Lesson
 from .task import Task
+from .star_transaction import StarTransaction

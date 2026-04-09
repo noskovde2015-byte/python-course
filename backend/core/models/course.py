@@ -16,5 +16,5 @@ class Course(Base):
     modules: Mapped[list["Module"]] = relationship(
         back_populates="course",
         cascade="all, delete-orphan",
-        order_by="Module.order",  # ✅ ВАЖНО
+        order_by="Module.order",
     )
