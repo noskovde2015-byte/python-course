@@ -14,7 +14,7 @@ from api.crud.module import (
 router = APIRouter(prefix=settings.prefix.module_prefix, tags=["Modules"])
 
 
-@router.post("", response_model=ModuleRead)
+@router.post("/courses/{course_id}/modules", response_model=ModuleRead)
 async def create_module_router(
     course_id: int,
     module_data: ModuleCreate,

@@ -16,6 +16,7 @@ class ApiPrefix(BaseModel):
     task_prefix: str = "/task"
     lesson_prefix: str = "/lesson"
     module_prefix: str = "/module"
+    stars_prefix: str = "/stars"
 
 
 class DataBaseConfig(BaseModel):
