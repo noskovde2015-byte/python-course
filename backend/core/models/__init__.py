@@ -8,6 +8,7 @@ __all__ = (
     "Module",
     "Task",
     "StarTransaction",
+    "UserTaskProgress",
 )
 from .base import Base
 from .db_helper import db_helper
@@ -18,3 +19,4 @@ from .course import Course
 from .lesson import Lesson
 from .task import Task
 from .star_transaction import StarTransaction
+from .user_task_progress import UserTaskProgress
