@@ -39,11 +39,5 @@ async def delete_module_route(
     session: AsyncSession = Depends(db_helper.session_getter),
     admin=Depends(get_current_admin),
 ):
-    module = await get_module_by_id(session=session, module_id=module_id)
-
-    if not module:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Модуль не найден",
-        )
-    await delete_module(module=module, session=session)
+    await delete_module(session=session, module_id=module_id)
+    return {"message": "Модуль удалён"}

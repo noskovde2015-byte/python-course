@@ -43,7 +43,5 @@ async def delete_lesson_route(
     session: AsyncSession = Depends(db_helper.session_getter),
     admin=Depends(get_current_admin),
 ):
-    lesson = await get_lesson_by_id(lesson_id=lesson_id, session=session)
-    if not lesson:
-        raise HTTPException(status_code=404, detail="Урок не найден")
-    await delete_lesson(lesson=lesson, session=session)
+    await delete_lesson(session=session, lesson_id=lesson_id)
+    return {"message": "Урок удалён"}

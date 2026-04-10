@@ -23,6 +23,10 @@ async def get_module_by_id(session: AsyncSession, module_id: int):
     return await session.get(Module, module_id)
 
 
-async def delete_module(session: AsyncSession, module: Module):
+async def delete_module(session: AsyncSession, module_id: int) -> None:
+    module = await session.get(Module, module_id)
+    if not module:
+        raise ValueError(f"Модуль с id {module_id} не найден")
+
     await session.delete(module)
     await session.commit()

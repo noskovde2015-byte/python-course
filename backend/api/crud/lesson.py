@@ -36,6 +36,10 @@ async def get_lesson_by_id(session: AsyncSession, lesson_id: int):
     return await session.get(Lesson, lesson_id)
 
 
-async def delete_lesson(session: AsyncSession, lesson: Lesson):
+async def delete_lesson(session: AsyncSession, lesson_id: int) -> None:
+    lesson = await session.get(Lesson, lesson_id)
+    if not lesson:
+        raise ValueError(f"Урок с id {lesson_id} не найден")
+
     await session.delete(lesson)
     await session.commit()
