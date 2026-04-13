@@ -55,7 +55,14 @@ async def submit_task_answer(
     if not task:
         raise ValueError("Task not found")
 
-    is_correct = task.answer.strip().lower() == answer.strip().lower()
+    is_correct = False
+
+    if task.type == "quiz":
+        is_correct = task.answer.strip().lower() == str(answer).strip().lower()
+    elif task.type == "mcq":
+        if not isinstance(answer, list):
+            answer = [answer]
+        is_correct = sorted(answer) == sorted(task.correct_answers or [])
 
     # ищем прогресс пользователя
     result = await session.execute(
