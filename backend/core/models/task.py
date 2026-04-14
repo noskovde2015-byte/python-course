@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .lesson import Lesson
+    from .comments import TaskComment
 
 
 class Task(Base):
@@ -27,3 +28,7 @@ class Task(Base):
     lesson_id: Mapped[int] = mapped_column(ForeignKey("lessons.id", ondelete="CASCADE"))
 
     lesson: Mapped["Lesson"] = relationship(back_populates="tasks")
+
+    comments: Mapped[list["TaskComment"]] = relationship(
+        back_populates="task", cascade="all, delete-orphan"
+    )
