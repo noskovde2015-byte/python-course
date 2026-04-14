@@ -7,6 +7,7 @@ from api.routers.module_router import router as module_router
 from api.routers.lesson_router import router as lesson_router
 from api.routers.task_router import router as task_router
 from api.routers.stars_router import router as stars_router
+from api.routers.comment_router import router as comment_router
 
 router = APIRouter(prefix=settings.prefix.api_prefix)
 router.include_router(register_router)
@@ -16,3 +17,4 @@ router.include_router(module_router)
 router.include_router(lesson_router)
 router.include_router(task_router)
 router.include_router(stars_router)
+router.include_router(comment_router)
