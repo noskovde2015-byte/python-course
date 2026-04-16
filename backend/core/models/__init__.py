@@ -10,6 +10,8 @@ __all__ = (
     "StarTransaction",
     "UserTaskProgress",
     "TaskComment",
+    "Problem",
+    "ProblemSubmission",
 )
 from .base import Base
 from .db_helper import db_helper
@@ -22,3 +24,5 @@ from .task import Task
 from .star_transaction import StarTransaction
 from .user_task_progress import UserTaskProgress
 from .comments import TaskComment
+from .problem import Problem
+from .problemSubmission import ProblemSubmission
