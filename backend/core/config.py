@@ -18,6 +18,7 @@ class ApiPrefix(BaseModel):
     module_prefix: str = "/module"
     stars_prefix: str = "/stars"
     comments_prefix: str = "/comments"
+    problem_prefix: str = "/problems"
 
 
 class DataBaseConfig(BaseModel):
