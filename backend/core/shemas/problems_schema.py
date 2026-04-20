@@ -1,11 +1,12 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 
 
 class ProblemCreate(BaseModel):
     title: str
     description: str
     difficulty: str
-    solution: str
+    input_data: str
+    expected_output: str
 
 
 class ProblemRead(BaseModel):
@@ -13,9 +14,9 @@ class ProblemRead(BaseModel):
     title: str
     description: str
     difficulty: str
-    solution: str
 
-    model_config = ConfigDict(from_attributes=True)
+    class Config:
+        from_attributes = True
 
 
 class SubmissionCreate(BaseModel):
@@ -24,4 +25,4 @@ class SubmissionCreate(BaseModel):
 
 class SubmissionResponse(BaseModel):
     correct: bool
-    message: str
+    output: str
