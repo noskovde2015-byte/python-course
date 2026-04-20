@@ -9,7 +9,8 @@ class Problem(Base):
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False)
     difficulty: Mapped[str] = mapped_column(String(50))
-    solution: Mapped[str] = mapped_column(Text)
+    input_data: Mapped[str] = mapped_column(Text)
+    expected_output: Mapped[str] = mapped_column(Text)
 
     submissions = relationship(
         "ProblemSubmission",
