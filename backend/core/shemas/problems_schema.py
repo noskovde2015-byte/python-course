@@ -5,8 +5,7 @@ class ProblemCreate(BaseModel):
     title: str
     description: str
     difficulty: str
-    input_data: str
-    expected_output: str
+    test_cases: list[dict]
 
 
 class ProblemRead(BaseModel):
@@ -25,4 +24,5 @@ class SubmissionCreate(BaseModel):
 
 class SubmissionResponse(BaseModel):
     correct: bool
-    output: str
+    passed: int
+    total: int

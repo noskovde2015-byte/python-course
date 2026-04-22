@@ -9,6 +9,7 @@ class TaskCreate(BaseModel):
     options: list[str] | None = None
     correct_answers: list[str] | None = None
     multiple: bool = False
+    test_cases: list[dict] | None = None
 
     model_config = {"extra": "forbid"}
 
