@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String, Text
+from sqlalchemy import String, Text, JSON
 from core.models import Base
 
 
@@ -9,8 +9,7 @@ class Problem(Base):
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False)
     difficulty: Mapped[str] = mapped_column(String(50))
-    input_data: Mapped[str] = mapped_column(Text)
-    expected_output: Mapped[str] = mapped_column(Text)
+    test_cases: Mapped[list[dict]] = mapped_column(JSON, nullable=False)
 
     submissions = relationship(
         "ProblemSubmission",

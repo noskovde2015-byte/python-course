@@ -25,6 +25,8 @@ class Task(Base):
 
     type: Mapped[str] = mapped_column(String(20), default="quiz", nullable=False)
 
+    test_cases: Mapped[list[dict] | None] = mapped_column(JSON, nullable=True)
+
     lesson_id: Mapped[int] = mapped_column(ForeignKey("lessons.id", ondelete="CASCADE"))
 
     lesson: Mapped["Lesson"] = relationship(back_populates="tasks")
