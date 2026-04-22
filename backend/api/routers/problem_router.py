@@ -4,7 +4,13 @@ from core.models import db_helper
 from api.dependencies import get_current_user, get_current_admin
 from core.config import settings
 from core.config import settings
-from api.crud.problems_crud import create_problem, get_problem, submit_solution
+from api.crud.problems_crud import (
+    create_problem,
+    get_problem,
+    submit_solution,
+    get_problem_by_difficulty,
+    delete_problem,
+)
 from core.shemas.problems_schema import (
     ProblemCreate,
     ProblemRead,
@@ -29,6 +35,32 @@ async def get_problems_router(
     session: AsyncSession = Depends(db_helper.session_getter),
 ):
     return await get_problem(session=session)
+
+
+@router.get("/{difficulty}", response_model=list[ProblemRead])
+async def get_problem_by_difficulty_router(
+    difficulty: str,
+    session: AsyncSession = Depends(db_helper.session_getter),
+):
+    return await get_problem_by_difficulty(
+        session=session,
+        difficulty=difficulty,
+    )
+
+
+@router.delete("/{problem_id}")
+async def delete_problem_router(
+    problem_id: int,
+    session: AsyncSession = Depends(db_helper.session_getter),
+    admin=Depends(get_current_admin),
+):
+    deleted = await delete_problem(
+        session=session,
+        problem_id=problem_id,
+    )
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Задача не найдена")
+    return {"message": "Задача удалена"}
 
 
 @router.post("/{problem_id}/submit", response_model=SubmissionResponse)

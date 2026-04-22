@@ -13,29 +13,55 @@ async def create_problem(session: AsyncSession, data: ProblemCreate):
     return problem
 
 
+async def get_problem_by_difficulty(session: AsyncSession, difficulty: str):
+    difficulty = difficulty.strip().lower()
+    result = await session.execute(
+        select(Problem).where(Problem.difficulty == difficulty).order_by(Problem.id)
+    )
+    return result.scalars().all()
+
+
 async def get_problem(session: AsyncSession):
     result = await session.execute(select(Problem))
     return result.scalars().all()
 
 
-async def submit_solution(user, problem_id: int, code: str, session: AsyncSession):
+async def delete_problem(session: AsyncSession, problem_id: int):
     problem = await session.get(Problem, problem_id)
+
+    if not problem:
+        return False
+
+    await session.delete(problem)
+    await session.commit()
+    return True
+
+
+async def submit_solution(user, problem_id: int, code: str, session):
+    problem = await session.get(Problem, problem_id)
+
     if not problem:
         raise ValueError("Problem not found")
 
-    # 🔥 запускаем код
-    output = await run_code(code, stdin=problem.input_data)
-    # 🔥 проверяем
-    is_correct = output.strip() == problem.expected_output.strip()
+    passed = 0
+    total = len(problem.test_cases)
+
+    for test in problem.test_cases:
+        output = await run_code(code, stdin=test["input"])
+
+        if output.strip() == test["output"].strip():
+            passed += 1
+
+    is_correct = passed == total
+
     submission = ProblemSubmission(
         user_id=user.id,
         problem_id=problem.id,
         code=code,
         is_correct=is_correct,
     )
+
     session.add(submission)
     await session.commit()
-    return {
-        "correct": is_correct,
-        "output": output,
-    }
+
+    return {"correct": is_correct, "passed": passed, "total": total}

@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.models import Task, Lesson, UserTaskProgress
 from core.shemas.task_shema import TaskCreate
 from datetime import datetime
+from utils.judge0 import run_code
 
 
 async def create_task(
@@ -63,7 +64,22 @@ async def submit_task_answer(
         if not isinstance(answer, list):
             answer = [answer]
         is_correct = sorted(answer) == sorted(task.correct_answers or [])
+    elif task.type == "code":
+        if not task.test_cases:
+            raise ValueError("No test cases found")
 
+        all_passed = True
+
+        for test in task.test_cases:
+            output = await run_code(
+                code=answer,
+                stdin=test["input"],
+            )
+            if output.strip() != test["output"].strip():
+                all_passed = False
+                break
+
+        is_correct = all_passed
     # ищем прогресс пользователя
     result = await session.execute(
         select(UserTaskProgress).where(
