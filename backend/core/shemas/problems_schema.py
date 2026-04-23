@@ -26,3 +26,8 @@ class SubmissionResponse(BaseModel):
     correct: bool
     passed: int
     total: int
+
+
+class LeaderboardItem(BaseModel):
+    nickname: str
+    solved: int

@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from core.models import Problem, ProblemSubmission
+from core.models import Problem, ProblemSubmission, User
 from core.shemas.problems_schema import ProblemCreate
-from sqlalchemy import select
+from sqlalchemy import select, func, distinct
 from utils.judge0 import run_code
 
 
@@ -65,3 +65,19 @@ async def submit_solution(user, problem_id: int, code: str, session):
     await session.commit()
 
     return {"correct": is_correct, "passed": passed, "total": total}
+
+
+async def get_leaderboard(session: AsyncSession):
+    result = await session.execute(
+        select(
+            User.id,
+            User.nickname,
+            func.count(distinct(ProblemSubmission.problem_id)).label("solved"),
+        )
+        .outerjoin(ProblemSubmission, ProblemSubmission.user_id == User.id)
+        .where(ProblemSubmission.is_correct == True)
+        .group_by(User.id, User.nickname)
+        .order_by(func.count(distinct(ProblemSubmission.problem_id)).desc())
+    )
+
+    return result.all()

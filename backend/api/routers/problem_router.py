@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import select, text
+from sqlalchemy.engine import row
 from sqlalchemy.ext.asyncio import AsyncSession
-from core.models import db_helper
+from core.models import db_helper, ProblemSubmission, User
 from api.dependencies import get_current_user, get_current_admin
 from core.config import settings
 from core.config import settings
@@ -10,12 +12,14 @@ from api.crud.problems_crud import (
     submit_solution,
     get_problem_by_difficulty,
     delete_problem,
+    get_leaderboard,
 )
 from core.shemas.problems_schema import (
     ProblemCreate,
     ProblemRead,
     SubmissionCreate,
     SubmissionResponse,
+    LeaderboardItem,
 )
 
 router = APIRouter(prefix=settings.prefix.problem_prefix, tags=["Problems"])
@@ -76,3 +80,18 @@ async def submit_problem(
         )
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.get("/", response_model=list[LeaderboardItem])
+async def leaderboard(
+    session: AsyncSession = Depends(db_helper.session_getter),
+):
+    result = await get_leaderboard(session)
+
+    return [
+        {
+            "nickname": row[1],
+            "solved": row[2],
+        }
+        for row in result
+    ]
