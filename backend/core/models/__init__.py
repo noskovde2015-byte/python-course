@@ -26,3 +26,4 @@ from .user_task_progress import UserTaskProgress
 from .comments import TaskComment
 from .problem import Problem
 from .problemSubmission import ProblemSubmission
+from .payment import Payment
