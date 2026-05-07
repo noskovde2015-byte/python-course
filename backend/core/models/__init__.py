@@ -12,6 +12,9 @@ __all__ = (
     "TaskComment",
     "Problem",
     "ProblemSubmission",
+    "Payment",
+    "ProblemHint",
+    "ProblemHintPurchase",
 )
 from .base import Base
 from .db_helper import db_helper
@@ -27,3 +30,5 @@ from .comments import TaskComment
 from .problem import Problem
 from .problemSubmission import ProblemSubmission
 from .payment import Payment
+from .problemHint import ProblemHint
+from .problemHintPurchase import ProblemHintPurchase
