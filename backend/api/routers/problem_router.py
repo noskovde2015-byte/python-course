@@ -8,6 +8,7 @@ from core.config import settings
 from core.config import settings
 from api.crud.problems_crud import (
     create_problem,
+    get_problem_by_id,
     get_problem,
     submit_solution,
     get_problem_by_difficulty,
@@ -39,6 +40,23 @@ async def get_problems_router(
     session: AsyncSession = Depends(db_helper.session_getter),
 ):
     return await get_problem(session=session)
+
+
+@router.get("/{problem_id}")
+async def get_problem_by_id_route(
+    problem_id: int,
+    session: AsyncSession = Depends(db_helper.session_getter),
+    user=Depends(get_current_user),
+):
+    try:
+        return await get_problem_by_id(
+            session=session,
+            user=user,
+            problem_id=problem_id,
+        )
+
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 @router.get("/{difficulty}", response_model=list[ProblemRead])

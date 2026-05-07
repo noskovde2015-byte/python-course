@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from core.config import settings
 from core.models import db_helper
 from api.dependencies import get_current_user
 from api.crud.payment_crud import (
@@ -12,7 +12,7 @@ from api.crud.payment_crud import (
     get_payment_history,
 )
 
-router = APIRouter(prefix="/payments", tags=["Payments"])
+router = APIRouter(prefix=settings.prefix.payments_prefix, tags=["Payments"])
 
 
 @router.get("/packages")
