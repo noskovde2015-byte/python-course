@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;600;700;800&display=swap');
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #0d0d0f;
+  --bg2: #141417;
+  --bg3: #1c1c21;
+  --border: rgba(255, 255, 255, 0.08);
+  --border2: rgba(255, 255, 255, 0.14);
+  --purple: #9b7ff4;
+  --purple2: #7c5ce0;
+  --purple3: rgba(155, 127, 244, 0.12);
+  --text: #f0eeff;
+  --muted: #8a8a9a;
+  --card: #17171c;
+  --green: #4ade80;
+  --green3: rgba(74, 222, 128, 0.1);
+  --amber: #fbbf24;
+  --amber3: rgba(251, 191, 36, 0.1);
+  --red: #f87171;
+  --red3: rgba(248, 113, 113, 0.1);
+}
+
+body {
+  font-family: 'Syne', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  font-family: 'Syne', sans-serif;
+  cursor: pointer;
+}
+
+input, textarea {
+  font-family: 'Syne', sans-serif;
+  background: none;
+  color: var(--text);
+}
+
+/* Все цифры через Inter */
+h1, h2, h3, h4 {
+  font-family: 'Syne', sans-serif;
+  font-feature-settings: "kern" 1;
+}
+
+/* Моно шрифт для кода */
+code, pre, .mono {
+  font-family: 'IBM Plex Mono', monospace;
+}
