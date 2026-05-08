@@ -40,11 +40,12 @@
 
 .title {
   font-size: clamp(2rem, 3.5vw, 3rem);
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1.07;
   letter-spacing: -1.5px;
   margin-bottom: 0.85rem;
   animation: fadeUp 0.6s 0.1s ease both;
+  font-family: 'Space Grotesk', sans-serif;
 }
 .title em {
   font-style: normal;
@@ -109,9 +110,10 @@
   animation: fadeUp 0.6s 0.4s ease both;
 }
 .statNum {
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: -1px;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  font-family: 'Space Grotesk', sans-serif;
 }
 .statLabel {
   font-size: 11px;

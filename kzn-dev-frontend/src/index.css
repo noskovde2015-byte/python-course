@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -50,13 +50,11 @@ input, textarea {
   color: var(--text);
 }
 
-/* Все цифры через Inter */
 h1, h2, h3, h4 {
-  font-family: 'Syne', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   font-feature-settings: "kern" 1;
 }
 
-/* Моно шрифт для кода */
-code, pre, .mono {
+code, pre {
   font-family: 'IBM Plex Mono', monospace;
 }

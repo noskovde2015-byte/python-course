@@ -132,11 +132,11 @@
   font-size: 13px;
   font-weight: 700;
   color: var(--purple);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
 }
 .starsBalance span {
   color: var(--text);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   font-weight: 700;
 }
 
