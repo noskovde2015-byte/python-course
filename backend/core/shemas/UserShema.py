@@ -24,3 +24,4 @@ class UserRead(UserBase):
     is_active: bool
     created_at: datetime.datetime
     role: UserRole
+    stars: int

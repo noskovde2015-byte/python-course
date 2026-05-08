@@ -11,6 +11,7 @@ from api.routers.comment_router import router as comment_router
 from api.routers.problem_router import router as problem_router
 from api.routers.payment_router import router as payment_router
 from api.routers.hint_roter import router as hint_roter
+from api.routers.user_router import router as user_router
 
 router = APIRouter(prefix=settings.prefix.api_prefix)
 router.include_router(register_router)
@@ -24,3 +25,4 @@ router.include_router(comment_router)
 router.include_router(problem_router)
 router.include_router(payment_router)
 router.include_router(hint_roter)
+router.include_router(user_router)
