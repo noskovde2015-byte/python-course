@@ -1,0 +1,12 @@
+/* src/components/ui/Badge.module.css */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 5px;
+  font-size: 10.5px;
+  font-weight: 700;
+  transition: transform 0.2s;
+}
+.easy  { background: var(--green3); color: var(--green); }
+.medium { background: var(--amber3); color: var(--amber); }
+.hard  { background: var(--red3);  color: var(--red); }
