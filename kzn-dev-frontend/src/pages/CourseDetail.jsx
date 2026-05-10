@@ -325,11 +325,20 @@ export default function CourseDetail() {
                   <div>
                     <label className={s.formLabel}>Контент урока</label>
                     <textarea
-                      className={s.formTextarea}
-                      placeholder="Текст урока, объяснения, примеры кода..."
-                      value={form.content ?? ""}
-                      onChange={(e) => setForm({ ...form, content: e.target.value })}
-                    />
+  className={s.formTextarea}
+  placeholder={`Поддерживается Markdown разметка:
+
+## Заголовок
+**жирный**, *курсив*
+- список
+\`код\`
+
+\`\`\`python
+print("Hello!")
+\`\`\``}
+  value={form.content ?? ""}
+  onChange={(e) => setForm({ ...form, content: e.target.value })}
+/>
                   </div>
                   <button type="submit" className={s.formSubmit} disabled={saving}>
                     {saving ? "Создаём..." : "Создать урок"}

@@ -1,11 +1,19 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
 import { useAuth } from "../context/AuthContext";
 import { getCourseById, getModules, getLessons } from "../api/courses";
-import { getTasks, createTask, deleteTask, submitTask } from "../api/tasks";
+import {
+  getTasks,
+  getLessonProgress,
+  createTask,
+  deleteTask,
+  submitTask,
+  getComments,
+  addComment,
+} from "../api/tasks";
 import s from "./LessonDetail.module.css";
 
-// Типы задач
 const TASK_TYPES = [
   { value: "quiz",     label: "Quiz — один правильный ответ" },
   { value: "multiple", label: "Multiple — несколько правильных" },
@@ -13,7 +21,6 @@ const TASK_TYPES = [
   { value: "code",     label: "Code — с тест-кейсами" },
 ];
 
-// Дефолтная форма создания задачи
 const DEFAULT_FORM = {
   type: "quiz",
   question: "",
@@ -30,25 +37,32 @@ export default function LessonDetail() {
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
 
-  const [course, setCourse]       = useState(null);
-  const [modules, setModules]     = useState([]);
-  const [allLessons, setAllLessons] = useState({}); // { moduleId: [...] }
-  const [lesson, setLesson]       = useState(null);
-  const [tasks, setTasks]         = useState([]);
-  const [loading, setLoading]     = useState(true);
-  const [tab, setTab]             = useState("content"); // "content" | "tasks"
+  const [course, setCourse]         = useState(null);
+  const [modules, setModules]       = useState([]);
+  const [allLessons, setAllLessons] = useState({});
+  const [lesson, setLesson]         = useState(null);
+  const [tasks, setTasks]           = useState([]);
+  const [loading, setLoading]       = useState(true);
+  const [tab, setTab]               = useState("content");
 
-  // Состояния ответов
-  const [answers, setAnswers]     = useState({}); // { taskId: answer }
-  const [results, setResults]     = useState({}); // { taskId: { correct, completed } }
+  // { taskId: answer } — что выбрал/ввёл пользователь
+  const [answers, setAnswers]   = useState({});
+  // { taskId: { correct, completed } } — результат проверки
+  const [results, setResults]   = useState({});
   const [submitting, setSubmitting] = useState({});
 
-  // Модалка создания задачи
+  // Комментарии { taskId: [...] }
+  const [comments, setComments]       = useState({});
+  const [commentInputs, setCommentInputs] = useState({});
+  const [openComments, setOpenComments]   = useState({});
+  const [sendingComment, setSendingComment] = useState({});
+
+  // Модалка задачи
   const [showModal, setShowModal] = useState(false);
   const [form, setForm]           = useState(DEFAULT_FORM);
   const [saving, setSaving]       = useState(false);
 
-  // Загрузка всего
+  // Загрузка
   useEffect(() => {
     const load = async () => {
       try {
@@ -60,7 +74,6 @@ export default function LessonDetail() {
         const mods = modulesRes.data;
         setModules(mods);
 
-        // Загружаем уроки всех модулей для сайдбара
         const lessonsMap = {};
         let currentLesson = null;
 
@@ -76,19 +89,34 @@ export default function LessonDetail() {
         setAllLessons(lessonsMap);
         setLesson(currentLesson);
 
-        // Задачи урока
         if (currentLesson) {
-          const tasksRes = await getTasks(lessonId);
-          setTasks(tasksRes.data);
+          // Загружаем задачи и прогресс параллельно
+          const [tasksRes, progressRes] = await Promise.all([
+            getTasks(lessonId),
+            user ? getLessonProgress(lessonId) : Promise.resolve(null),
+          ]);
+
+          const taskList = tasksRes.data;
+          setTasks(taskList);
+
+          // Восстанавливаем выполненные задачи из прогресса
+          if (progressRes) {
+            const completedIds = progressRes.data.completed_task_ids ?? [];
+            const restoredResults = {};
+            completedIds.forEach((tid) => {
+              restoredResults[tid] = { correct: true, completed: true };
+            });
+            setResults(restoredResults);
+          }
         }
       } finally {
         setLoading(false);
       }
     };
     load();
-  }, [courseId, lessonId]);
+  }, [courseId, lessonId, user]);
 
-  // Получаем плоский список всех уроков для навигации prev/next
+  // Плоский список уроков для prev/next
   const flatLessons = modules.flatMap((m) => allLessons[m.id] ?? []);
   const currentIndex = flatLessons.findIndex((l) => String(l.id) === String(lessonId));
   const prevLesson = flatLessons[currentIndex - 1] ?? null;
@@ -97,7 +125,7 @@ export default function LessonDetail() {
   // Отправка ответа
   const handleSubmit = async (task) => {
     const answer = answers[task.id];
-    if (!answer && answer !== 0) return;
+    if (answer === undefined || answer === null || answer === "") return;
 
     setSubmitting((prev) => ({ ...prev, [task.id]: true }));
     try {
@@ -110,7 +138,7 @@ export default function LessonDetail() {
     }
   };
 
-  // Выбор варианта ответа (quiz)
+  // Выбор варианта
   const selectOption = (taskId, option, isMultiple) => {
     if (results[taskId]?.completed) return;
     if (isMultiple) {
@@ -163,7 +191,7 @@ export default function LessonDetail() {
       setTasks((prev) => [...prev, res.data]);
       setShowModal(false);
       setForm(DEFAULT_FORM);
-      setTab("tasks"); // переключаемся на вкладку задач
+      setTab("tasks");
     } catch (err) {
       alert(err.response?.data?.detail || "Ошибка при создании задачи");
     } finally {
@@ -171,32 +199,55 @@ export default function LessonDetail() {
     }
   };
 
-  // Добавить/удалить вариант ответа в форме
-  const addOption = () =>
-    setForm((f) => ({ ...f, options: [...f.options, ""] }));
-  const removeOption = (i) =>
-    setForm((f) => ({ ...f, options: f.options.filter((_, idx) => idx !== i) }));
-  const setOption = (i, val) =>
-    setForm((f) => { const o = [...f.options]; o[i] = val; return { ...f, options: o }; });
-  const toggleCorrect = (val) =>
-    setForm((f) => ({
-      ...f,
-      correct_answers: f.correct_answers.includes(val)
-        ? f.correct_answers.filter((v) => v !== val)
-        : [...f.correct_answers, val],
-    }));
+  // Загрузить комментарии к задаче
+  const loadComments = async (taskId) => {
+    if (comments[taskId]) return; // уже загружены
+    try {
+      const res = await getComments(taskId);
+      setComments((prev) => ({ ...prev, [taskId]: res.data }));
+    } catch {
+      setComments((prev) => ({ ...prev, [taskId]: [] }));
+    }
+  };
 
-  // Тест-кейсы
-  const addTestCase = () =>
-    setForm((f) => ({ ...f, test_cases: [...f.test_cases, { input: "", expected_output: "" }] }));
-  const removeTestCase = (i) =>
-    setForm((f) => ({ ...f, test_cases: f.test_cases.filter((_, idx) => idx !== i) }));
-  const setTestCase = (i, key, val) =>
-    setForm((f) => {
-      const tc = [...f.test_cases];
-      tc[i] = { ...tc[i], [key]: val };
-      return { ...f, test_cases: tc };
-    });
+  // Переключить секцию комментариев
+  const toggleComments = async (taskId) => {
+    const isOpen = openComments[taskId];
+    setOpenComments((prev) => ({ ...prev, [taskId]: !isOpen }));
+    if (!isOpen) await loadComments(taskId);
+  };
+
+  // Отправить комментарий
+  const handleAddComment = async (taskId) => {
+    const text = commentInputs[taskId]?.trim();
+    if (!text) return;
+    setSendingComment((prev) => ({ ...prev, [taskId]: true }));
+    try {
+      const res = await addComment(taskId, text);
+      setComments((prev) => ({
+        ...prev,
+        [taskId]: [...(prev[taskId] ?? []), res.data],
+      }));
+      setCommentInputs((prev) => ({ ...prev, [taskId]: "" }));
+    } catch { alert("Ошибка при отправке комментария"); }
+    finally { setSendingComment((prev) => ({ ...prev, [taskId]: false })); }
+  };
+
+  // Helpers для формы
+  const addOption    = () => setForm((f) => ({ ...f, options: [...f.options, ""] }));
+  const removeOption = (i) => setForm((f) => ({ ...f, options: f.options.filter((_, idx) => idx !== i) }));
+  const setOption    = (i, val) => setForm((f) => { const o = [...f.options]; o[i] = val; return { ...f, options: o }; });
+  const toggleCorrect = (val) => setForm((f) => ({
+    ...f,
+    correct_answers: f.correct_answers.includes(val)
+      ? f.correct_answers.filter((v) => v !== val)
+      : [...f.correct_answers, val],
+  }));
+  const addTestCase    = () => setForm((f) => ({ ...f, test_cases: [...f.test_cases, { input: "", expected_output: "" }] }));
+  const removeTestCase = (i) => setForm((f) => ({ ...f, test_cases: f.test_cases.filter((_, idx) => idx !== i) }));
+  const setTestCase    = (i, key, val) => setForm((f) => {
+    const tc = [...f.test_cases]; tc[i] = { ...tc[i], [key]: val }; return { ...f, test_cases: tc };
+  });
 
   const completedCount = Object.values(results).filter((r) => r.completed).length;
 
@@ -238,7 +289,6 @@ export default function LessonDetail() {
 
       {/* ===== MAIN ===== */}
       <div className={s.main}>
-        {/* Header */}
         <div className={s.lessonHeader}>
           <div className={s.lessonLabel}>
             // урок {currentIndex + 1} из {flatLessons.length}
@@ -268,30 +318,24 @@ export default function LessonDetail() {
             onClick={() => setTab("tasks")}
           >
             🎯 Задания
-            {tasks.length > 0 && (
-              <span className={s.tabBadge}>{tasks.length}</span>
-            )}
+            {tasks.length > 0 && <span className={s.tabBadge}>{tasks.length}</span>}
           </button>
         </div>
 
         {/* ===== TAB: CONTENT ===== */}
         {tab === "content" && (
-          <>
-            {lesson?.content ? (
-              <div
-                className={s.content}
-                dangerouslySetInnerHTML={{ __html: lesson.content }}
-              />
-            ) : (
-              <div className={s.emptyContent}>Контент урока ещё не добавлен</div>
-            )}
-          </>
+          lesson?.content ? (
+            <div className={s.content}>
+              <ReactMarkdown>{lesson.content}</ReactMarkdown>
+            </div>
+          ) : (
+            <div className={s.emptyContent}>Контент урока ещё не добавлен</div>
+          )
         )}
 
         {/* ===== TAB: TASKS ===== */}
         {tab === "tasks" && (
           <>
-            {/* Кнопка добавить задачу для админа */}
             {isAdmin && (
               <div className={s.adminRow}>
                 <button className={s.btnSm} onClick={() => setShowModal(true)}>
@@ -318,6 +362,8 @@ export default function LessonDetail() {
                 const answer  = answers[task.id];
                 const isDone  = result?.completed;
                 const isRight = result?.correct;
+                const taskComments = comments[task.id] ?? [];
+                const isCommentsOpen = openComments[task.id];
 
                 return (
                   <div
@@ -329,7 +375,6 @@ export default function LessonDetail() {
                       <span className={s.taskType}>{task.type}</span>
                     </div>
 
-                    {/* Кнопка удаления для админа */}
                     {isAdmin && (
                       <div className={s.taskAdminBtns}>
                         <button className={s.btnTaskDel} onClick={() => handleDeleteTask(task.id)}>
@@ -347,7 +392,6 @@ export default function LessonDetail() {
                             : answer === opt;
                           const isCorrect = isDone && isRight && isSelected;
                           const isWrong   = isDone && !isRight && isSelected;
-
                           return (
                             <div
                               key={opt}
@@ -394,11 +438,83 @@ export default function LessonDetail() {
                       </span>
                       <button
                         className={s.btnSubmit}
-                        disabled={isDone || submitting[task.id] || !answer}
+                        disabled={isDone || submitting[task.id] || (!answer && answer !== 0)}
                         onClick={() => handleSubmit(task)}
                       >
                         {isDone ? "Выполнено" : submitting[task.id] ? "..." : "Проверить"}
                       </button>
+                    </div>
+
+                    {/* ===== КОММЕНТАРИИ ===== */}
+                    <div className={s.commentsSection}>
+                      <button
+                        className={s.commentsToggle}
+                        onClick={() => toggleComments(task.id)}
+                      >
+                        💬 {isCommentsOpen ? "Скрыть" : "Комментарии"}
+                        {taskComments.length > 0 && (
+                          <span className={s.commentsBadge}>{taskComments.length}</span>
+                        )}
+                      </button>
+
+                      {isCommentsOpen && (
+                        <div className={s.commentsList}>
+                          {taskComments.length === 0 ? (
+                            <div className={s.commentsEmpty}>
+                              Комментариев пока нет. Будь первым!
+                            </div>
+                          ) : (
+                            taskComments.map((c) => (
+                              <div key={c.id} className={s.commentItem}>
+                                <div className={s.commentAvatar}>
+                                  {String(c.user_id).slice(0, 2)}
+                                </div>
+                                <div className={s.commentBody}>
+                                  <div className={s.commentMeta}>
+                                    <span className={s.commentUser}>{c.user_nickname ?? `Пользователь #${c.user_id}`}</span>
+                                    <span className={s.commentDate}>
+                                      {new Date(c.created_at).toLocaleDateString("ru-RU", {
+                                        day: "numeric",
+                                        month: "short",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                      })}
+                                    </span>
+                                  </div>
+                                  <div className={s.commentText}>{c.text}</div>
+                                </div>
+                              </div>
+                            ))
+                          )}
+
+                          {/* Поле ввода комментария */}
+                          {user && (
+                            <div className={s.commentInput}>
+                              <input
+                                className={s.commentField}
+                                placeholder="Написать комментарий..."
+                                value={commentInputs[task.id] ?? ""}
+                                onChange={(e) =>
+                                  setCommentInputs((prev) => ({
+                                    ...prev,
+                                    [task.id]: e.target.value,
+                                  }))
+                                }
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") handleAddComment(task.id);
+                                }}
+                              />
+                              <button
+                                className={s.commentSend}
+                                disabled={sendingComment[task.id] || !commentInputs[task.id]?.trim()}
+                                onClick={() => handleAddComment(task.id)}
+                              >
+                                {sendingComment[task.id] ? "..." : "→"}
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -424,15 +540,13 @@ export default function LessonDetail() {
         </div>
       </div>
 
-      {/* ===== MODAL: СОЗДАНИЕ ЗАДАЧИ ===== */}
+      {/* ===== MODAL ===== */}
       {showModal && (
         <div className={s.overlay} onClick={() => setShowModal(false)}>
           <div className={s.modal} onClick={(e) => e.stopPropagation()}>
             <button className={s.modalClose} onClick={() => setShowModal(false)}>×</button>
             <div className={s.modalTitle}>Создать задачу</div>
-
             <form className={s.form} onSubmit={handleCreateTask}>
-              {/* Тип задачи */}
               <div>
                 <label className={s.formLabel}>Тип задачи</label>
                 <select
@@ -446,7 +560,6 @@ export default function LessonDetail() {
                 </select>
               </div>
 
-              {/* Вопрос */}
               <div>
                 <label className={s.formLabel}>Вопрос</label>
                 <textarea
@@ -458,7 +571,6 @@ export default function LessonDetail() {
                 />
               </div>
 
-              {/* === QUIZ / MULTIPLE — варианты ответа === */}
               {(form.type === "quiz" || form.type === "multiple") && (
                 <>
                   <div>
@@ -472,13 +584,7 @@ export default function LessonDetail() {
                           onChange={(e) => setOption(i, e.target.value)}
                         />
                         {form.options.length > 2 && (
-                          <button
-                            type="button"
-                            className={s.btnRemoveOpt}
-                            onClick={() => removeOption(i)}
-                          >
-                            ✕
-                          </button>
+                          <button type="button" className={s.btnRemoveOpt} onClick={() => removeOption(i)}>✕</button>
                         )}
                       </div>
                     ))}
@@ -486,7 +592,6 @@ export default function LessonDetail() {
                       + Добавить вариант
                     </button>
                   </div>
-
                   <div>
                     <label className={s.formLabel}>
                       {form.type === "quiz" ? "Правильный ответ" : "Правильные ответы"}
@@ -514,7 +619,6 @@ export default function LessonDetail() {
                 </>
               )}
 
-              {/* === TEXT — правильный ответ === */}
               {form.type === "text" && (
                 <div>
                   <label className={s.formLabel}>Правильный ответ</label>
@@ -529,16 +633,13 @@ export default function LessonDetail() {
                 </div>
               )}
 
-              {/* === CODE — тест-кейсы === */}
               {form.type === "code" && (
                 <div>
                   <label className={s.formLabel}>Тест-кейсы</label>
                   {form.test_cases.map((tc, i) => (
                     <div key={i} style={{ marginBottom: "0.75rem", background: "var(--bg3)", borderRadius: 8, padding: "0.75rem" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                        <span style={{ fontSize: 11, color: "var(--muted)", fontFamily: "monospace" }}>
-                          Тест {i + 1}
-                        </span>
+                        <span style={{ fontSize: 11, color: "var(--muted)", fontFamily: "monospace" }}>Тест {i + 1}</span>
                         {form.test_cases.length > 1 && (
                           <button type="button" className={s.btnRemoveOpt} onClick={() => removeTestCase(i)}>✕</button>
                         )}
