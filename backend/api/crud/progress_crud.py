@@ -35,3 +35,19 @@ async def get_course_progress(session, user, course_id: int):
         "completed_tasks": completed_tasks,
         "total_tasks": total_tasks,
     }
+
+
+async def get_lesson_task_progress(session, user, lesson_id: int):
+    """Возвращает список выполненных task_id для урока"""
+    stmt = (
+        select(UserTaskProgress)
+        .join(Task, Task.id == UserTaskProgress.task_id)
+        .where(
+            Task.lesson_id == lesson_id,
+            UserTaskProgress.user_id == user.id,
+            UserTaskProgress.is_completed == True,
+        )
+    )
+    result = await session.execute(stmt)
+    progress_list = result.scalars().all()
+    return [p.task_id for p in progress_list]

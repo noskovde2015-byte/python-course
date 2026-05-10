@@ -39,7 +39,6 @@ async def delete_task(session: AsyncSession, task_id: int) -> bool:
     task = await session.get(Task, task_id)
     if not task:
         return False
-
     await session.delete(task)
     await session.commit()
     return True
@@ -49,38 +48,58 @@ async def submit_task_answer(
     session: AsyncSession,
     user,
     task_id: int,
-    answer: str,
+    answer,
 ):
     task = await session.get(Task, task_id)
-
     if not task:
         raise ValueError("Task not found")
 
     is_correct = False
 
     if task.type == "quiz":
-        is_correct = task.answer.strip().lower() == str(answer).strip().lower()
-    elif task.type == "mcq":
+        # Одиночный выбор — сравниваем с correct_answers[0]
+        if task.correct_answers and len(task.correct_answers) > 0:
+            correct = task.correct_answers[0].strip().lower()
+            is_correct = str(answer).strip().lower() == correct
+        elif task.answer:
+            # фолбэк на старое поле answer
+            is_correct = task.answer.strip().lower() == str(answer).strip().lower()
+
+    elif task.type == "multiple":
+        # Множественный выбор
         if not isinstance(answer, list):
             answer = [answer]
-        is_correct = sorted(answer) == sorted(task.correct_answers or [])
+        correct = sorted([a.strip().lower() for a in (task.correct_answers or [])])
+        given = sorted([a.strip().lower() for a in answer])
+        is_correct = given == correct
+
+    elif task.type == "text":
+        # Текстовый ответ — сравниваем с task.answer
+        if task.answer:
+            is_correct = task.answer.strip().lower() == str(answer).strip().lower()
+        else:
+            raise ValueError("Task has no correct answer set")
+
     elif task.type == "code":
+        # Код с тест-кейсами
         if not task.test_cases:
             raise ValueError("No test cases found")
 
         all_passed = True
-
         for test in task.test_cases:
+            # поддерживаем оба варианта ключей: output и expected_output
+            expected = test.get("expected_output") or test.get("output") or ""
             output = await run_code(
-                code=answer,
-                stdin=test["input"],
+                code=str(answer),
+                stdin=test.get("input", ""),
             )
-            if output.strip() != test["output"].strip():
+            if output.strip() != expected.strip():
                 all_passed = False
                 break
 
         is_correct = all_passed
-    # ищем прогресс пользователя
+
+    # Ищем прогресс пользователя
     result = await session.execute(
         select(UserTaskProgress).where(
             UserTaskProgress.user_id == user.id,
@@ -89,7 +108,7 @@ async def submit_task_answer(
     )
     progress = result.scalar_one_or_none()
 
-    # если нет записи — создаём
+    # Если нет записи — создаём
     if not progress:
         progress = UserTaskProgress(
             user_id=user.id,
@@ -99,7 +118,7 @@ async def submit_task_answer(
         )
         session.add(progress)
 
-    # если ответ правильный и ещё не выполнено
+    # Если ответ правильный и ещё не выполнено — засчитываем
     if is_correct and not progress.is_completed:
         progress.is_completed = True
         progress.completed_at = datetime.utcnow()

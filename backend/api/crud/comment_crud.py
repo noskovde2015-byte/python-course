@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from core.models import TaskComment
+from sqlalchemy.orm import joinedload
+from core.models import TaskComment, User
 
 
 async def create_comment(session: AsyncSession, user, task_id: int, data):
@@ -11,12 +12,20 @@ async def create_comment(session: AsyncSession, user, task_id: int, data):
     )
     session.add(comment)
     await session.commit()
-    await session.refresh(comment)
-    return comment
+
+    result = await session.execute(
+        select(TaskComment)
+        .options(joinedload(TaskComment.user))
+        .where(TaskComment.id == comment.id)
+    )
+    return result.scalar_one()
 
 
 async def get_comments_by_task(session: AsyncSession, task_id: int):
     result = await session.execute(
-        select(TaskComment).where(TaskComment.task_id == task_id)
+        select(TaskComment)
+        .options(joinedload(TaskComment.user))
+        .where(TaskComment.task_id == task_id)
+        .order_by(TaskComment.created_at)
     )
     return result.scalars().all()

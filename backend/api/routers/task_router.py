@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from api.crud.progress_crud import get_lesson_task_progress
 from core.config import settings
 from core.models import db_helper
 from api.dependencies import get_current_admin, get_current_user
@@ -53,3 +55,17 @@ async def submit_task(
     user=Depends(get_current_user),
 ):
     return await submit_task_answer(session, user, task_id, data.answer)
+
+
+@router.get("/lesson/{lesson_id}/progress")
+async def get_lesson_progress_route(
+    lesson_id: int,
+    session: AsyncSession = Depends(db_helper.session_getter),
+    user=Depends(get_current_user),
+):
+    completed_ids = await get_lesson_task_progress(
+        session=session,
+        user=user,
+        lesson_id=lesson_id,
+    )
+    return {"completed_task_ids": completed_ids}

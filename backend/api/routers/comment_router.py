@@ -16,7 +16,10 @@ async def add_comment(
     session: AsyncSession = Depends(db_helper.session_getter),
     user=Depends(get_current_user),
 ):
-    return await create_comment(session=session, task_id=task_id, data=data, user=user)
+    comment = await create_comment(
+        session=session, task_id=task_id, data=data, user=user
+    )
+    return CommentRead.from_orm_with_user(comment)
 
 
 @router.get("/{task_id}", response_model=list[CommentRead])
@@ -24,4 +27,5 @@ async def get_comments(
     task_id: int,
     session: AsyncSession = Depends(db_helper.session_getter),
 ):
-    return await get_comments_by_task(task_id=task_id, session=session)
+    comments = await get_comments_by_task(task_id=task_id, session=session)
+    return [CommentRead.from_orm_with_user(c) for c in comments]
