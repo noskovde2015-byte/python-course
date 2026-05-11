@@ -8,6 +8,8 @@ import Shop from "./pages/Shop";
 import Courses from "./pages/Courses";
 import CourseDetail from "./pages/CourseDetail";
 import LessonDetail from "./pages/LessonDetail";
+import Problems from "./pages/Problems";
+import ProblemDetail from "./pages/ProblemDetail";
 
 export default function App() {
   return (
@@ -15,13 +17,15 @@ export default function App() {
       <BrowserRouter>
         <Navbar />
         <Routes>
-          <Route path="/"                                    element={<Home />} />
-          <Route path="/login"                               element={<Login />} />
-          <Route path="/register"                            element={<Register />} />
-          <Route path="/shop"                                element={<Shop />} />
-          <Route path="/courses"                             element={<Courses />} />
-          <Route path="/courses/:id"                         element={<CourseDetail />} />
-          <Route path="/courses/:id/lessons/:lessonId"       element={<LessonDetail />} />
+          <Route path="/"                              element={<Home />} />
+          <Route path="/login"                         element={<Login />} />
+          <Route path="/register"                      element={<Register />} />
+          <Route path="/shop"                          element={<Shop />} />
+          <Route path="/courses"                       element={<Courses />} />
+          <Route path="/courses/:id"                   element={<CourseDetail />} />
+          <Route path="/courses/:id/lessons/:lessonId" element={<LessonDetail />} />
+          <Route path="/problems"                      element={<Problems />} />
+          <Route path="/problems/:id"                  element={<ProblemDetail />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
