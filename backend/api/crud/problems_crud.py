@@ -128,3 +128,29 @@ async def get_leaderboard(session: AsyncSession):
     )
 
     return result.all()
+
+
+async def get_user_solved_problems(session: AsyncSession, user_id: int):
+    """Возвращает set из problem_id которые пользователь решил верно"""
+    result = await session.execute(
+        select(ProblemSubmission.problem_id)
+        .where(
+            ProblemSubmission.user_id == user_id,
+            ProblemSubmission.is_correct == True,
+        )
+        .distinct()
+    )
+    return {row[0] for row in result.all()}
+
+
+async def get_problem_submissions_count(session: AsyncSession):
+    """Возвращает словарь problem_id: кол-во решивших"""
+    result = await session.execute(
+        select(
+            ProblemSubmission.problem_id,
+            func.count(distinct(ProblemSubmission.user_id)).label("solvers"),
+        )
+        .where(ProblemSubmission.is_correct == True)
+        .group_by(ProblemSubmission.problem_id)
+    )
+    return {row[0]: row[1] for row in result.all()}

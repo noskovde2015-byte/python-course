@@ -1,10 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select, text
-from sqlalchemy.engine import row
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.models import db_helper, ProblemSubmission, User
 from api.dependencies import get_current_user, get_current_admin
-from core.config import settings
 from core.config import settings
 from api.crud.problems_crud import (
     create_problem,
@@ -14,6 +12,8 @@ from api.crud.problems_crud import (
     get_problem_by_difficulty,
     delete_problem,
     get_leaderboard,
+    get_user_solved_problems,
+    get_problem_submissions_count,
 )
 from core.shemas.problems_schema import (
     ProblemCreate,
@@ -35,7 +35,21 @@ async def create_problem_router(
     return await create_problem(data=data, session=session)
 
 
-@router.get("", response_model=list[ProblemRead])
+@router.get("/stats")
+async def get_problems_stats(
+    session: AsyncSession = Depends(db_helper.session_getter),
+    user=Depends(get_current_user),
+):
+    """Возвращает решённые задачи пользователя + кол-во решивших каждую задачу"""
+    solved_ids = await get_user_solved_problems(session, user.id)
+    solvers_count = await get_problem_submissions_count(session)
+    return {
+        "solved_problem_ids": list(solved_ids),
+        "solvers_count": solvers_count,
+    }
+
+
+@router.get("")
 async def get_problems_router(
     session: AsyncSession = Depends(db_helper.session_getter),
 ):
@@ -54,20 +68,8 @@ async def get_problem_by_id_route(
             user=user,
             problem_id=problem_id,
         )
-
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
-
-
-@router.get("/{difficulty}", response_model=list[ProblemRead])
-async def get_problem_by_difficulty_router(
-    difficulty: str,
-    session: AsyncSession = Depends(db_helper.session_getter),
-):
-    return await get_problem_by_difficulty(
-        session=session,
-        difficulty=difficulty,
-    )
 
 
 @router.delete("/{problem_id}")
@@ -76,10 +78,7 @@ async def delete_problem_router(
     session: AsyncSession = Depends(db_helper.session_getter),
     admin=Depends(get_current_admin),
 ):
-    deleted = await delete_problem(
-        session=session,
-        problem_id=problem_id,
-    )
+    deleted = await delete_problem(session=session, problem_id=problem_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Задача не найдена")
     return {"message": "Задача удалена"}
@@ -100,16 +99,9 @@ async def submit_problem(
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.get("/", response_model=list[LeaderboardItem])
+@router.get("/leaderboard/list")
 async def leaderboard(
     session: AsyncSession = Depends(db_helper.session_getter),
 ):
     result = await get_leaderboard(session)
-
-    return [
-        {
-            "nickname": row[1],
-            "solved": row[2],
-        }
-        for row in result
-    ]
+    return [{"nickname": row[1], "solved": row[2]} for row in result]
