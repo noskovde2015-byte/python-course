@@ -10,6 +10,7 @@ import CourseDetail from "./pages/CourseDetail";
 import LessonDetail from "./pages/LessonDetail";
 import Problems from "./pages/Problems";
 import ProblemDetail from "./pages/ProblemDetail";
+import Leaderboard from "./pages/Leaderboard";
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
           <Route path="/courses/:id/lessons/:lessonId" element={<LessonDetail />} />
           <Route path="/problems"                      element={<Problems />} />
           <Route path="/problems/:id"                  element={<ProblemDetail />} />
+          <Route path="/leaderboard"                   element={<Leaderboard />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

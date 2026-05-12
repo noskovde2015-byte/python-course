@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.models.star_transaction import TransactionType
 from core.models import User, StarTransaction
 
-DAILY_REWARD = 10
+DAILY_REWARD = 50
 
 
 async def claim_daily_reward(user: User, session: AsyncSession):
