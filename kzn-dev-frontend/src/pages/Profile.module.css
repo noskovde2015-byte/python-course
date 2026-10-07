@@ -1,0 +1,414 @@
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem;
+}
+
+/* HERO */
+.hero {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: 18px;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 260px; height: 260px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(124,92,224,0.12), transparent 70%);
+  pointer-events: none;
+}
+.heroTop {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.avatar {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--purple), var(--purple2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+  font-family: 'IBM Plex Mono', monospace;
+  border: 3px solid rgba(155,127,244,0.3);
+  box-shadow: 0 0 0 4px rgba(155,127,244,0.08);
+}
+.heroInfo { flex: 1; }
+.heroNick {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+  font-family: 'Space Grotesk', sans-serif;
+  margin-bottom: 6px;
+}
+.heroRole {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--purple3);
+  border: 1px solid rgba(155,127,244,0.25);
+  color: var(--purple);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-family: 'IBM Plex Mono', monospace;
+  margin-bottom: 10px;
+}
+.heroMeta {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+.heroMetaItem {
+  font-size: 12px;
+  color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Stats strip */
+.statsStrip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.statItem {
+  background: var(--bg2);
+  padding: 1rem;
+  text-align: center;
+}
+.statNum {
+  font-size: 22px;
+  font-weight: 800;
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: -1px;
+}
+.statLbl {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace;
+  margin-top: 2px;
+}
+
+/* Layout */
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 290px;
+  gap: 1.25rem;
+  align-items: start;
+}
+.left { display: flex; flex-direction: column; gap: 1.25rem; }
+.right { display: flex; flex-direction: column; gap: 1.25rem; }
+
+/* Cards */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: 14px;
+  padding: 1.5rem;
+}
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+.cardTitle {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+.cardMeta {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Activity grid */
+.activityGrid {
+  display: grid;
+  grid-template-columns: repeat(26, 1fr);
+  gap: 3px;
+  margin-bottom: 8px;
+}
+.actCell {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 2px;
+  transition: transform 0.15s;
+  cursor: default;
+}
+.actCell:hover { transform: scale(1.4); }
+.act0 { background: rgba(255,255,255,0.04); }
+.act1 { background: rgba(155,127,244,0.2); }
+.act2 { background: rgba(155,127,244,0.45); }
+.act3 { background: rgba(155,127,244,0.7); }
+.act4 { background: rgba(155,127,244,1); }
+.actLegend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: flex-end;
+}
+.actLegendLbl {
+  font-size: 10.5px;
+  color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace;
+}
+.actLegendCells { display: flex; gap: 3px; }
+.actLegendCell { width: 12px; height: 12px; border-radius: 2px; }
+
+/* Solved problems list */
+.probRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--border);
+  transition: padding-left 0.2s;
+  cursor: default;
+}
+.probRow:last-child { border-bottom: none; }
+.probRow:hover { padding-left: 4px; }
+.probBadge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 5px;
+  font-size: 10.5px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.easy   { background: var(--green3); color: var(--green); }
+.medium { background: var(--amber3); color: var(--amber); }
+.hard   { background: var(--red3, rgba(248,113,113,0.1)); color: var(--red); }
+.probTitle { flex: 1; font-size: 13px; font-weight: 600; }
+.probDate {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace;
+  flex-shrink: 0;
+}
+
+/* Course progress */
+.courseRow {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.courseRow:last-child { border-bottom: none; }
+.courseTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.courseName { font-size: 13.5px; font-weight: 600; }
+.coursePct {
+  font-size: 12px;
+  font-family: 'Space Grotesk', sans-serif;
+  color: var(--purple);
+  font-weight: 700;
+}
+.courseBar {
+  height: 4px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.courseFill { height: 100%; border-radius: 2px; background: var(--purple); }
+.courseFillDone { background: var(--green); }
+
+/* Sidebar cards */
+.sideTitle {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace;
+  margin-bottom: 1rem;
+}
+
+/* Streak */
+.streakBox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.streakNum {
+  font-size: 3rem;
+  font-weight: 800;
+  font-family: 'Space Grotesk', sans-serif;
+  color: var(--amber);
+  letter-spacing: -2px;
+}
+.streakInfo { text-align: right; }
+.streakLbl {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.streakSub {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+/* Badges */
+.badgesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.65rem;
+}
+.badgeItem {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem 0.5rem;
+  text-align: center;
+  cursor: default;
+  transition: all 0.2s;
+}
+.badgeItem:hover {
+  border-color: rgba(155,127,244,0.3);
+  transform: translateY(-2px);
+}
+.badgeLocked { opacity: 0.3; filter: grayscale(1); }
+.badgeEmoji { font-size: 1.5rem; margin-bottom: 4px; }
+.badgeName {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+/* Stars history */
+.starsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12.5px;
+}
+.starsRow:last-child { border-bottom: none; }
+.starsType {
+  color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11.5px;
+}
+.starsPos { color: var(--green); font-weight: 700; font-family: 'Space Grotesk', sans-serif; }
+.starsNeg { color: var(--red); font-weight: 700; font-family: 'Space Grotesk', sans-serif; }
+
+/* Loading */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 54px);
+  color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+}
+
+/* Edit modal */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.modal {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 420px;
+  position: relative;
+}
+.modalTitle {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  margin-bottom: 1.5rem;
+  font-family: 'Space Grotesk', sans-serif;
+}
+.modalClose {
+  position: absolute;
+  top: 1rem; right: 1rem;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 22px;
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.2s;
+}
+.modalClose:hover { color: var(--text); }
+.form { display: flex; flex-direction: column; gap: 1rem; }
+.formLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-family: 'IBM Plex Mono', monospace;
+  margin-bottom: 5px;
+  display: block;
+}
+.formInput {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 13.5px;
+  font-family: 'Syne', sans-serif;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.formInput:focus { border-color: var(--purple); }
+.formSubmit {
+  padding: 11px;
+  background: var(--purple);
+  color: #fff;
+  border: none;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Syne', sans-serif;
+  margin-top: 4px;
+}
+.formSubmit:hover:not(:disabled) { background: var(--purple2); transform: translateY(-1px); }
+.formSubmit:disabled { opacity: 0.6; cursor: default; }
