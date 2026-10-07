@@ -80,7 +80,9 @@ export default function Navbar() {
             <div className={s.divider} />
 
             {/* Никнейм */}
-            <span className={s.nickname}>{user.nickname}</span>
+<Link to="/profile" className={s.nickname}>
+  {user.nickname}
+</Link>
 
             {/* Выйти */}
             <button className={s.btnOutline} onClick={logout}>
